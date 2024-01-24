@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_ACCESS_KEY_ID     = 'AKIAZ4EPFSM2RT7CJDOK'
+        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_DEFAULT_REGION    = 'us-east-1' 
+        EKS_CLUSTER_NAME      = 'demo-eks'
+        DOCKER_IMAGE_NAME     = 'react-app-image'
+        KUBECONFIG            = "${WORKSPACE}/kubeconfig.yaml"
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def dockerImage = docker.build("${DOCKER_IMAGE_NAME}:${BUILD_NUMBER}")
+                    dockerImage.push()
+                }
+            }
+        }
+        
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    // Authenticate with AWS and configure kubectl
+                    sh "aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
+                    
+                    // Deploy the application to the EKS cluster
+                    sh "kubectl apply -f deployment.yaml"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up resources
+            sh "kubectl delete deployment ${DOCKER_IMAGE_NAME}"
+        }
+    }
+}
+
