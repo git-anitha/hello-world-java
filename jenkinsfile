@@ -2,8 +2,8 @@ pipeline {
     agent any
     
     environment {
-        AWS_ACCESS_KEY_ID     = 'AKIAZ4EPFSM2RT7CJDOK'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID     = ''
+        AWS_SECRET_ACCESS_KEY = ''
         AWS_DEFAULT_REGION    = 'us-east-1' 
         EKS_CLUSTER_NAME      = 'demo-eks'
         DOCKER_IMAGE_NAME     = 'react-app-image'
